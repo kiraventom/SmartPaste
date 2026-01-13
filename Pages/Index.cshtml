@@ -1,0 +1,55 @@
+﻿@page
+@model IndexModel
+
+<div>
+    <style>
+        #textarea {
+            box-sizing: border-box; /* so resize observer will work properly */
+        }
+    </style>
+
+    <h3>SmartPaste</h3>
+    <p>Paste the text:</p>
+    <form id="form" method="post">
+        <p><textarea id="textarea" asp-for="Text"></textarea></p>
+        <p><button type="submit">Save</button></p>
+    </form>
+
+    <script>
+        const textarea = document.getElementById('textarea');
+        const form = document.getElementById('form');
+
+        // Ctrl+Enter handle
+        textarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                form.requestSubmit();
+            }
+        });
+
+        // Restore textarea size
+        const textarea_width_key = 'textarea_w';
+        const textarea_height_key = 'textarea_h';
+
+        const saved_width = localStorage.getItem(textarea_width_key);
+        const saved_height = localStorage.getItem(textarea_height_key);
+
+        if (saved_width && saved_height)
+        {
+            textarea.style.width = saved_width + 'px';
+            textarea.style.height = saved_height + 'px';
+        }
+
+        const resizeObserver = new ResizeObserver(() => {
+            localStorage.setItem(textarea_width_key, textarea.offsetWidth);
+            localStorage.setItem(textarea_height_key, textarea.offsetHeight);
+        });
+
+        resizeObserver.observe(textarea);
+    </script>
+
+    @if (!string.IsNullOrEmpty(Model.Text))
+    {
+        <p>@Model.Result</p>
+    }
+</div>
