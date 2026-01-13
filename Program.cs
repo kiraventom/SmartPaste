@@ -5,6 +5,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Core;
 using SmartPaste;
+using Microsoft.AspNetCore.HttpOverrides;
 
 public partial class Program
 {
@@ -32,6 +33,11 @@ public partial class Program
         builder.Services.AddHostedService<ExpirationService>();
 
         var app = builder.Build();
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
