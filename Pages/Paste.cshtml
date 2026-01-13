@@ -1,0 +1,62 @@
+@page "/{link}"
+@model SmartPaste.Pages.PasteModel
+
+<div>
+    <style>
+        .copyStatus {
+            color: green; 
+            display: none; 
+            margin-left: 8px;
+        }
+
+        #textarea {
+            box-sizing: border-box; /* so resize observer will work properly */
+        }
+    </style>
+
+    <h3>@($"Paste {Model.Paste.Link}")</h3>
+    <p>
+        <textarea id="textarea" asp-for="Paste.Text" readonly></textarea>
+    </p>
+
+    <p>
+        <button id="copyTextBtn">Copy text</button>
+        <span id="copyTextStatus" class="copyStatus">Copied!</span>
+    </p>
+
+    <p>
+        <button id="copyLinkBtn">Copy link</button>
+        <span id="copyLinkStatus" class="copyStatus">Copied!</span>
+    </p>
+
+    <script>
+        const statuses = [
+            document.getElementById('copyTextStatus'),
+            document.getElementById('copyLinkStatus')
+        ];
+
+        function showStatus(statusEl) {
+            for (const s of statuses)
+                s.style.display = 'none';
+            
+            statusEl.style.display = 'inline';
+        }
+
+        async function copyToClipboard(text) {
+            await navigator.clipboard.writeText(text ?? '');
+        }
+
+        document.getElementById('copyTextBtn')
+            .addEventListener('click', async () => {
+                await copyToClipboard(textarea.value);
+                showStatus(document.getElementById('copyTextStatus'));
+            });
+
+
+        document.getElementById('copyLinkBtn')
+            .addEventListener('click', async () => {
+                await copyToClipboard(window.location.href);
+                showStatus(document.getElementById('copyLinkStatus'));
+            });
+    </script>
+</div>
