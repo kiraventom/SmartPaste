@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace SmartPaste.Model;
@@ -34,5 +35,22 @@ public class Paste
     public string Text { get; set; }
 
     public DateTime Created { get; set; }
-    public int ExpiresHours { get; set; }
+    public int ExpiresMin { get; set; }
+
+    [NotMapped]
+    public bool OneShot => ExpiresMin == 0;
+
+    [NotMapped]
+    public bool NeverDelete => ExpiresMin < 0;
+}
+
+public enum Expiration
+{
+    OnceRead = 0,
+    TenMinutes = 10,
+    Hour = 60,
+    SixHours = Hour * 6,
+    Day = Hour * 24,
+    Week = Day * 7,
+    Never = -1
 }

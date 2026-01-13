@@ -8,10 +8,22 @@
         }
     </style>
 
-    <p>Paste the text:</p>
     <form id="form" method="post">
         <p><textarea id="textarea" asp-for="Text"></textarea></p>
-        <p><button type="submit">Save</button></p>
+
+        Delete:
+        @foreach (var exp in Enum.GetValues<SmartPaste.Model.Expiration>())
+        {
+            var name = Enum.GetName<SmartPaste.Model.Expiration>(exp);
+            var id = $"{nameof(SmartPaste.Model.Expiration)}_{name}";
+            if (IndexModel.ExpirationCaptions.ContainsKey(exp))
+                name = IndexModel.ExpirationCaptions[exp];
+
+            <input type="radio" asp-for="Expiration" value="@exp" id="@id" />
+            <label style="font-size: 12px" for="@id">@name</label>
+        }
+
+        <p><button id="saveBtn" type="submit">Save</button></p>
     </form>
 
     <script>

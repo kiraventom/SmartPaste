@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,8 +17,23 @@ public class IndexModel(MainContext db) : PageModel
     private const string SYMBOLS = "abcdefghkmnprstuvwxyzABCDEFGHKLMNPRSTUVWXYZ";
     private const int LINK_LENGTH = 6;
 
+    public static IReadOnlyDictionary<Expiration, string> ExpirationCaptions { get; } = 
+    new Dictionary<Expiration, string>() {
+        {Expiration.OnceRead, "Once read" },
+        {Expiration.TenMinutes, "In 10 minutes" },
+        {Expiration.Hour, "In 1 hour" },
+        {Expiration.SixHours, "In 6 hours" },
+        {Expiration.Day, "In a day" },
+        {Expiration.Week, "In a week" },
+        {Expiration.Never, "Never" },
+    };
+
     [BindProperty]
+    [Required]
     public string Text { get; set; }
+
+    [BindProperty]
+    public Expiration Expiration { get; set; } = Expiration.TenMinutes;
 
     public void OnGet()
     {
@@ -25,6 +41,9 @@ public class IndexModel(MainContext db) : PageModel
 
     public async Task<IActionResult> OnPost()
     {
+        if (string.IsNullOrEmpty(Text))
+            return Page();
+
         var paste = await SavePaste();
         if (paste is not null)
         {
@@ -46,7 +65,7 @@ public class IndexModel(MainContext db) : PageModel
             {
                 Text = Text, 
                 Created = DateTime.UtcNow,
-                ExpiresHours = 1, // TODO
+                ExpiresMin = (int)Expiration,
                 Link = BuildLink()
             };
 

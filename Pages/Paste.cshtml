@@ -12,24 +12,76 @@
         #textarea {
             box-sizing: border-box; /* so resize observer will work properly */
         }
+
+        #textarea:read-only {
+            background-color: #F3F3F3;
+        }
+
+        #textarea:focus { outline: none; box-shadow: none; }
     </style>
 
     <h3>@($"Paste {Model.Paste.Link}")</h3>
-    <p>
-        <textarea id="textarea" asp-for="Paste.Text" readonly></textarea>
-    </p>
+
+    @if (!Model.Paste.NeverDelete)
+    {
+        if (Model.Paste.OneShot)
+        {
+            if (Model.IsOneShotShown)
+            {
+                <span style="color: #FF4444">Warning! Paste will be deleted after
+                    you close or reload this page!</span>
+            }
+            else
+            {
+                <span style="color: #FF4444">Warning! After you press "Show
+                    paste" button, paste will be shown only once!</span>
+            }
+        }
+        else
+        {
+            var createdUtc = DateTime.SpecifyKind(Model.Paste.Created,
+            DateTimeKind.Utc);
+            var dt = createdUtc.AddMinutes(Model.Paste.ExpiresMin);
+            var ms = new DateTimeOffset(dt).ToUnixTimeMilliseconds();
+            <span>Paste will be deleted at </span>
+            <span id="when" data-utc-ms="@ms"></span>
+        }
+    }
 
     <p>
-        <button id="copyTextBtn">Copy text</button>
-        <span id="copyTextStatus" class="copyStatus">Copied!</span>
+        @if (Model.Paste.OneShot && !Model.IsOneShotShown)
+        {
+            <form method="post" asp-page-handler="show" asp-route-link="@Model.Paste.Link">
+                <button type="submit">
+                    Show paste
+                </button>
+            </form>
+        }
+        else
+        {
+            <textarea id="textarea" asp-for="Paste.Text" readonly></textarea>
+        }
     </p>
 
-    <p>
-        <button id="copyLinkBtn">Copy link</button>
-        <span id="copyLinkStatus" class="copyStatus">Copied!</span>
-    </p>
+    @if (!Model.Paste.OneShot || Model.IsOneShotShown)
+    {
+        <p>
+            <button id="copyTextBtn">Copy text</button>
+            <span id="copyTextStatus" class="copyStatus">Copied!</span>
+        </p>
+    }
+
+    @if (!Model.Paste.OneShot || !Model.IsOneShotShown)
+    {
+        <p>
+            <button id="copyLinkBtn">Copy link</button>
+            <span id="copyLinkStatus" class="copyStatus">Copied!</span>
+        </p>
+    }
 
     <script>
+        const textarea = document.getElementById('textarea');
+
         const statuses = [
             document.getElementById('copyTextStatus'),
             document.getElementById('copyLinkStatus')
@@ -37,7 +89,8 @@
 
         function showStatus(statusEl) {
             for (const s of statuses)
-                s.style.display = 'none';
+                if (s)
+                    s.style.display = 'none';
             
             statusEl.style.display = 'inline';
         }
@@ -46,17 +99,33 @@
             await navigator.clipboard.writeText(text ?? '');
         }
 
-        document.getElementById('copyTextBtn')
-            .addEventListener('click', async () => {
+        const copyTextButton = document.getElementById('copyTextBtn');
+        if (copyTextButton)
+        {
+            copyTextButton.addEventListener('click', async () => {
                 await copyToClipboard(textarea.value);
                 showStatus(document.getElementById('copyTextStatus'));
             });
+        }
 
 
-        document.getElementById('copyLinkBtn')
-            .addEventListener('click', async () => {
+        const copyLinkButton = document.getElementById('copyLinkBtn');
+        if (copyLinkButton)
+        {
+            copyLinkButton.addEventListener('click', async () => {
                 await copyToClipboard(window.location.href);
                 showStatus(document.getElementById('copyLinkStatus'));
             });
+        }
+    </script>
+
+    <script>
+        const whenEl = document.getElementById('when');
+        if (whenEl)
+        {
+            const ms = Number(whenEl.dataset.utcMs);
+            const local = new Date(ms);
+            whenEl.textContent = local.toLocaleString();
+        }
     </script>
 </div>

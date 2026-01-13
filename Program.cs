@@ -4,6 +4,7 @@ using SmartPaste.Model;
 using Serilog;
 using Serilog.Events;
 using Serilog.Core;
+using SmartPaste;
 
 public partial class Program
 {
@@ -28,6 +29,8 @@ public partial class Program
             o.UseSqlite(csb.ConnectionString);
         });
 
+        builder.Services.AddHostedService<ExpirationService>();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -49,6 +52,8 @@ public partial class Program
         app.UseRouting();
 
         app.UseAuthorization();
+
+        app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 
         app.MapStaticAssets();
         app.MapRazorPages()
