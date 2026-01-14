@@ -12,12 +12,11 @@
         <p><textarea id="textarea" asp-for="Text"></textarea></p>
 
         Delete:
-        @foreach (var exp in Enum.GetValues<SmartPaste.Model.Expiration>())
+        @foreach (var kvp in IndexModel.ExpirationCaptions)
         {
-            var name = Enum.GetName<SmartPaste.Model.Expiration>(exp);
-            var id = $"{nameof(SmartPaste.Model.Expiration)}_{name}";
-            if (IndexModel.ExpirationCaptions.ContainsKey(exp))
-                name = IndexModel.ExpirationCaptions[exp];
+            var id = $"{nameof(SmartPaste.Model.Expiration)}_{kvp.Value}";
+            var name = kvp.Value;
+            var exp = kvp.Key;
 
             <input type="radio" asp-for="Expiration" value="@exp" id="@id" />
             <label style="font-size: 12px" for="@id">@name</label>
