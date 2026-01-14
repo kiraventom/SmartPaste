@@ -35,6 +35,12 @@ public class IndexModel(MainContext db) : PageModel
     [BindProperty]
     public Expiration Expiration { get; set; } = Expiration.TenMinutes;
 
+    [BindProperty]
+    public bool UsePassword { get; set; }
+
+    [BindProperty]
+    public string Password { get; set; }
+
     public void OnGet()
     {
     }
@@ -66,8 +72,11 @@ public class IndexModel(MainContext db) : PageModel
                 Text = Text, 
                 Created = DateTime.UtcNow,
                 ExpiresMin = (int)Expiration,
-                Link = BuildLink()
+                Link = BuildLink(),
             };
+
+            if (UsePassword && !string.IsNullOrWhiteSpace(Password))
+                paste.PasswordHash = Utils.Md5Hex(Password);
 
             db.Pastes.Add(paste);
 

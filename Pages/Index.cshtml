@@ -21,7 +21,25 @@
             <label style="font-size: 12px" for="@id">@name</label>
         }
 
-        <p><button id="saveBtn" type="submit">Save</button></p>
+        <!-- Password toggle -->
+        <div class="form-check">
+            <input id="usePassword"
+                   class="form-check-input"
+                   type="checkbox"
+                   asp-for="UsePassword" />
+            <label class="form-check-label" for="usePassword">Lock with password</label>
+        </div>
+
+        <div class="mt-1">
+            <input id="passwordInput"
+                   type="password"
+                   asp-for="Password"
+                   disabled />
+        </div>
+
+        <p>
+            <button id="saveBtn" type="submit">Save</button>
+        </p>
     </form>
 
     <script>
@@ -36,21 +54,15 @@
             }
         });
 
-        const MAX_HEIGHT = 500;
+        // Password enable/disable
+        const usePassword = document.getElementById('usePassword');
+        const passwordInput = document.getElementById('passwordInput');
 
-        function autoResize() {
-            textarea.style.height = 'auto';
-
-            if (textarea.scrollHeight > MAX_HEIGHT) {
-                textarea.style.height = MAX_HEIGHT + 'px';
-                textarea.style.overflowY = 'auto';
-            } else {
-                textarea.style.height = textarea.scrollHeight + 'px';
-                textarea.style.overflowY = 'hidden';
-            }
+        function syncPasswordEnabled() {
+            passwordInput.disabled = !usePassword.checked;
         }
 
-        textarea.addEventListener('input', autoResize);
-        window.addEventListener('load', autoResize);
+        usePassword.addEventListener('change', syncPasswordEnabled);
+        window.addEventListener('load', syncPasswordEnabled);
     </script>
 </div>

@@ -18,57 +18,71 @@
 
     <h3>@($"Paste {Model.Paste.Link}")</h3>
 
-    @if (!Model.Paste.NeverDelete)
+    @if (Model.Paste.Protected && !Model.GetUnlocked(Model.Paste.Link))
     {
-        if (Model.Paste.OneShot)
+        <form method="post" asp-page-handler="unlock" asp-route-link="@Model.Paste.Link">
+            Password: 
+            <input id="passwordInput"
+                type="password"
+                asp-for="Password" />
+
+            <button type="submit">Unlock</button>
+        </form>
+    }
+    else
+    {
+        @if (!Model.Paste.NeverDelete)
         {
-            if (Model.IsOneShotShown)
+            if (Model.Paste.OneShot)
             {
-                <span style="color: #FF4444">Warning! Paste will be deleted after
-                    you close or reload this page!</span>
+                if (Model.IsOneShotShown)
+                {
+                    <span style="color: #FF4444">Warning! Paste will be deleted after
+                        you close or reload this page!</span>
+                }
+                else
+                {
+                    <span style="color: #FF4444">Warning! After you press "Show
+                        paste" button, paste will be shown only once!</span>
+                }
             }
             else
             {
-                <span style="color: #FF4444">Warning! After you press "Show
-                    paste" button, paste will be shown only once!</span>
+                var createdUtc = DateTime.SpecifyKind(Model.Paste.Created,
+                DateTimeKind.Utc);
+                var dt = createdUtc.AddMinutes(Model.Paste.ExpiresMin);
+                var ms = new DateTimeOffset(dt).ToUnixTimeMilliseconds();
+                <span>Paste will be deleted at </span>
+                <span id="when" data-utc-ms="@ms"></span>
             }
         }
-        else
-        {
-            var createdUtc = DateTime.SpecifyKind(Model.Paste.Created,
-            DateTimeKind.Utc);
-            var dt = createdUtc.AddMinutes(Model.Paste.ExpiresMin);
-            var ms = new DateTimeOffset(dt).ToUnixTimeMilliseconds();
-            <span>Paste will be deleted at </span>
-            <span id="when" data-utc-ms="@ms"></span>
-        }
-    }
 
-    <p>
-        @if (Model.Paste.OneShot && !Model.IsOneShotShown)
-        {
-            <form method="post" asp-page-handler="show" asp-route-link="@Model.Paste.Link">
-                <button type="submit">
-                    Show paste
-                </button>
-            </form>
-        }
-        else
-        {
-            <textarea 
-                id="textarea" 
-                class="ta-autosize"
-                asp-for="Paste.Text" 
-                readonly></textarea>
-        }
-    </p>
-
-    @if (!Model.Paste.OneShot || Model.IsOneShotShown)
-    {
         <p>
-            <button id="copyTextBtn">Copy text</button>
-            <span id="copyTextStatus" class="copyStatus">Copied!</span>
+            @if (Model.Paste.OneShot && !Model.IsOneShotShown)
+            {
+                <form method="post" asp-page-handler="show" asp-route-link="@Model.Paste.Link">
+                    <button type="submit">
+                        Show paste
+                    </button>
+                </form>
+            }
+            else
+            {
+                <textarea 
+                    id="textarea" 
+                    class="ta-autosize"
+                    asp-for="Paste.Text" 
+                    readonly></textarea>
+            }
         </p>
+
+        @if (!Model.Paste.OneShot || Model.IsOneShotShown)
+        {
+            <p>
+                <button id="copyTextBtn">Copy text</button>
+                <span id="copyTextStatus" class="copyStatus">Copied!</span>
+            </p>
+        }
     }
 
     @if (!Model.Paste.OneShot || !Model.IsOneShotShown)

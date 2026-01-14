@@ -37,6 +37,11 @@ public class Paste
     public DateTime Created { get; set; }
     public int ExpiresMin { get; set; }
 
+    public string PasswordHash { get; set; }
+
+    [NotMapped]
+    public bool Protected => PasswordHash is not null;
+
     [NotMapped]
     public bool OneShot => ExpiresMin == 0;
 

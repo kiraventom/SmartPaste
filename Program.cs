@@ -19,6 +19,7 @@ public partial class Program
 
         var logger = CreateLogger(projectDataDir);
 
+        builder.Services.AddSession();
         builder.Services.AddRazorPages();
         builder.Services.AddDbContext<MainContext>(o =>
         {
@@ -54,14 +55,11 @@ public partial class Program
         }
 
         app.UseHttpsRedirection();
-
         app.UseRouting();
-
         app.UseAuthorization();
-
         app.UseStatusCodePagesWithReExecute("/Errors/{0}");
-
         app.UseStaticFiles();
+        app.UseSession();
         app.MapRazorPages();
 
         app.Run();
