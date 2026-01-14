@@ -61,9 +61,8 @@ public partial class Program
 
         app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 
-        app.MapStaticAssets();
-        app.MapRazorPages()
-           .WithStaticAssets();
+        app.UseStaticFiles();
+        app.MapRazorPages();
 
         app.Run();
     }
