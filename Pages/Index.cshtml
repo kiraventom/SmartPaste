@@ -2,14 +2,13 @@
 @model IndexModel
 
 <div>
-    <style>
-        #textarea {
-            box-sizing: border-box; /* so resize observer will work properly */
-        }
-    </style>
-
     <form id="form" method="post">
-        <p><textarea id="textarea" asp-for="Text"></textarea></p>
+        <p>
+        <textarea 
+            id="textarea" 
+            class="ta-autosize"
+            asp-for="Text"></textarea>
+        </p>
 
         Delete:
         @foreach (var kvp in IndexModel.ExpirationCaptions)
@@ -36,5 +35,22 @@
                 form.requestSubmit();
             }
         });
+
+        const MAX_HEIGHT = 500;
+
+        function autoResize() {
+            textarea.style.height = 'auto';
+
+            if (textarea.scrollHeight > MAX_HEIGHT) {
+                textarea.style.height = MAX_HEIGHT + 'px';
+                textarea.style.overflowY = 'auto';
+            } else {
+                textarea.style.height = textarea.scrollHeight + 'px';
+                textarea.style.overflowY = 'hidden';
+            }
+        }
+
+        textarea.addEventListener('input', autoResize);
+        window.addEventListener('load', autoResize);
     </script>
 </div>

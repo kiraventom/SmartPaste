@@ -1,0 +1,11 @@
+.ta-autosize {
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
+
+  resize: none;
+  overflow-y: hidden; 
+
+  min-height: 120px;
+  max-height: 400px;
+}
